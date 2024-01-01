@@ -60,4 +60,31 @@ $(document).ready(function () {
       $("#signup-card").toggleClass("show");
     }
   });
+
+  $("#search").click(function (e) {
+    e.preventDefault();
+    let service = $("#services").val() == "" ? "" : "s=" + $("#services").val();
+    let from = $("#from").val() == "" ? "" : service == "" ? "from=" +  $("#from").val() : "&from=" + $("#from").val();
+    let to = $("#to").val() == "" ? "" : from == "" ? "to=" + $("#to").val() : "&to=" + $("#to").val();
+    let date =
+      $("#departure-date").val() == "" ? "" : to == "" ? "d=" + $("#departure-date").val() : "&d=" + $("#departure-date").val();
+    let time = $("#time").val() == "" ? "" : date == "" ? "t=" + $("#time").val() : "&t=" + $("#time").val();
+
+    window.location.href = "index.php?" + service + from + to + date + time;
+
+    //   $.ajax({
+    //     type: "POST",
+    //     url: "book.php",
+    //     data: {
+    //       service: service,
+    //       from: from,
+    //       to: to,
+    //       date: date,
+    //       time: time,
+    //     },
+    //     succes: function (response) {
+    //       alert(response);
+    //     },
+    //   });
+  });
 });

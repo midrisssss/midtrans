@@ -47,6 +47,13 @@ if (isset($_POST["signup-submit"])) {
     }
 }
 
+$getTrain = "SELECT t_type FROM tbl_train GROUP BY t_type;";
+$getStation = "SELECT * FROM tbl_station ORDER BY s_name ASC;";
+$resultGetTrain = mysqli_query($connect, $getTrain);
+$resultGetStation = mysqli_query($connect, $getStation);
+$resultGetStation1 = mysqli_query($connect, $getStation);
+
+
 ?>
 
 <!DOCTYPE html>
@@ -104,7 +111,69 @@ if (isset($_POST["signup-submit"])) {
             </div>
             <button type="button" id="right"><i class="fi fi-sr-angle-right"></i></button>
         </div>
-        <!-- <form action="" method="post" id="service"></form> -->
+        <div id="service">
+            <h2>Booking</h2>
+            <form action="" method="POST">
+                <div class="container">
+                    <div class="form-control">
+                        <label for="services">Services</label>
+                        <select name="services" id="services">
+                            <option value="" selected>All Services</option>
+                            <?php if (mysqli_num_rows($resultGetTrain) > 0) { ?>
+                                <?php while ($train = mysqli_fetch_assoc($resultGetTrain)) { ?>
+                                    <option value="<?= $train['t_type'] ?>">
+                                        <?= $train['t_type'] ?>
+                                    </option>
+                                <?php } ?>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="container">
+                        <div class="form-control">
+                            <label for="from">From</label>
+                            <select name="from" id="from">
+                                <option value=""> From</option>
+                                <?php if (mysqli_num_rows($resultGetStation) > 0) { ?>
+                                    <?php while ($station = mysqli_fetch_assoc($resultGetStation)) { ?>
+                                        <option value="<?= $station['s_id'] ?>">
+                                            <?= $station['s_name'] ?>
+                                        </option>
+                                    <?php } ?>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label for="to">To</label>
+                            <select name="to" id="to">
+                                <option value=""> To</option>
+                                <?php if (mysqli_num_rows($resultGetStation1) > 0) { ?>
+                                    <?php while ($station1 = mysqli_fetch_assoc($resultGetStation1)) { ?>
+                                        <option value="<?= $station1['s_id'] ?>">
+                                            <?= $station1['s_name'] ?>
+                                        </option>
+                                    <?php } ?>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="container">
+                        <div class="form-control">
+                            <label for="departure-date">Departure Date</label>
+                            <input type="date" name="departure-date" id="departure-date">
+                        </div>
+                        <div class="form-control">
+                            <label for="time">Time</label>
+                            <input type="time" name="time" id="time">
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <button type="submit" id="search">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </main>
     <div id="frame" class="hide"></div>
     <form method="POST" id="login-card" class="hide">
