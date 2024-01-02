@@ -3,6 +3,24 @@ include "connect.php";
 
 session_start();
 
+$getKeberangkatan = "";
+
+if (isset($_GET['s']) || isset($_GET['from']) || isset($_GET['to'])) {
+    $service = $_GET["s"] == "" ? "" : "t.t_type='" . $_GET["s"] . "'";
+    $from = $_GET["from"] == "" ? "" : ($service == "" ? "k.from_s='" . $_GET["from"] . "'" : " AND k.from_s='" . $_GET["from"] . "'");
+    $to = $_GET["to"] == "" ? "" : ($from == "" ? "k.to_S='" . $_GET["to"] . "'" : " AND k.to_S='" . $_GET["to"] . "'");
+
+    $sql = $service . $from . $to;
+    if ($service || $from || $to) {
+        $getKeberangkatan = "SELECT * FROM tbl_keberangkatan as k, tbl_train as t WHERE k.t_id=t.t_id AND " . $sql;
+        $resultKeberangkatan = mysqli_query($connect, $getKeberangkatan);
+
+        if ($resultKeberangkatan) {
+        }
+    }
+}
+
+
 if (isset($_POST["login-submit"])) {
     $login_name = $_POST["login-name"];
     $login_pass = $_POST["login-pass"];
@@ -117,7 +135,7 @@ $resultGetStation1 = mysqli_query($connect, $getStation);
                 <div class="container">
                     <div class="form-control">
                         <label for="services">Services</label>
-                        <select name="services" id="services">
+                        <select name="services" id="services" required>
                             <option value="" selected>All Services</option>
                             <?php if (mysqli_num_rows($resultGetTrain) > 0) { ?>
                                 <?php while ($train = mysqli_fetch_assoc($resultGetTrain)) { ?>
@@ -131,7 +149,7 @@ $resultGetStation1 = mysqli_query($connect, $getStation);
                     <div class="container">
                         <div class="form-control">
                             <label for="from">From</label>
-                            <select name="from" id="from">
+                            <select name="from" id="from" required>
                                 <option value=""> From</option>
                                 <?php if (mysqli_num_rows($resultGetStation) > 0) { ?>
                                     <?php while ($station = mysqli_fetch_assoc($resultGetStation)) { ?>
@@ -144,7 +162,7 @@ $resultGetStation1 = mysqli_query($connect, $getStation);
                         </div>
                         <div class="form-control">
                             <label for="to">To</label>
-                            <select name="to" id="to">
+                            <select name="to" id="to" required>
                                 <option value=""> To</option>
                                 <?php if (mysqli_num_rows($resultGetStation1) > 0) { ?>
                                     <?php while ($station1 = mysqli_fetch_assoc($resultGetStation1)) { ?>
@@ -158,22 +176,67 @@ $resultGetStation1 = mysqli_query($connect, $getStation);
                     </div>
                 </div>
                 <div class="container">
-                    <div class="container">
+                    <!-- <div class="container">
                         <div class="form-control">
                             <label for="departure-date">Departure Date</label>
-                            <input type="date" name="departure-date" id="departure-date">
+                            <input type="date" name="departure-date" id="departure-date" required>
                         </div>
                         <div class="form-control">
                             <label for="time">Time</label>
-                            <input type="time" name="time" id="time">
+                            <input type="time" name="time" id="time" required>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="form-control">
                         <button type="submit" id="search">Search</button>
                     </div>
                 </div>
             </form>
         </div>
+
+        <?php if ($getKeberangkatan != "") { ?>
+            <div class="table">
+                <table border="2">
+                    <tr>
+                        <th>No</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Service</th>
+                        <th>From Date</th>
+                        <th>to Date</th>
+                        <th>Time</th>
+                    </tr>
+                    <?php if (mysqli_num_rows($resultKeberangkatan)) { ?>
+                        <?php $i = 0 ?>
+                        <?php while ($row = mysqli_fetch_assoc($resultKeberangkatan)) { ?>
+                            <tr>
+                                <td>
+                                    <?= ++$i ?>
+                                </td>
+                                <td>
+                                    <?= $row["from_s"] ?>
+                                </td>
+                                <td>
+                                    <?= $row["to_S"] ?>
+                                </td>
+                                <td>
+                                    <?= $row["t_type"] ?>
+                                </td>
+                                <td>
+                                    <?= $row["from_date"] ?>
+                                </td>
+                                <td>
+                                    <?= $row["to_date"] ?>
+                                </td>
+                                <td>
+                                    <?= $row["from_time"] ?>
+                                    <?= $row["to_time"] ?>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                </table>
+            </div>
+        <?php } ?>
     </main>
     <div id="frame" class="hide"></div>
     <form method="POST" id="login-card" class="hide">

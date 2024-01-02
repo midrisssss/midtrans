@@ -17,6 +17,7 @@ body {
   height: 100svh; */
   overflow-y: auto;
   overflow-x: hidden;
+  padding-bottom: 100px;
 }
 
 header {
@@ -276,7 +277,8 @@ main > #trains > div.show > .train-desc {
 }
 
 #login-card,
-#signup-card {
+#signup-card,
+#logout-card {
   position: fixed;
   top: 15svh;
   left: 30svw;
@@ -294,13 +296,15 @@ main > #trains > div.show > .train-desc {
 }
 
 #login-card.show,
-#signup-card.show {
+#signup-card.show,
+#logout-card.show {
   display: flex;
   animation: login-show 400ms ease-out;
 }
 
 #login-card.hide,
-#signup-card.hide {
+#signup-card.hide,
+#logout-card.hide {
   animation: login-hide 400ms ease-out;
   display: none;
 }
@@ -324,12 +328,13 @@ main > #trains > div.show > .train-desc {
 }
 
 #login-card > .form-control,
-#signup-card > .form-control {
+#signup-card > .form-control, #logout-card > .form-control {
   width: 100%;
 }
 
 #login-card > .form-control > input,
-#signup-card > .form-control > input {
+#signup-card > .form-control > input, 
+#logout-card > .form-control > input {
   width: 100%;
   height: 100%;
   outline: none;
@@ -441,4 +446,40 @@ main > #service > form > .container .form-control button {
 
 main > #service > form > .container .form-control button:hover {
   background-color: #00cc00;
+}
+
+table {
+  border: 2px solid white;
+  border-collapse: collapse;
+  margin: 30px auto;
+  width: 80svw;
+}
+table tr:hover,
+table tr:nth-of-type(1) {
+  background-color: #5252fd;
+}
+table tr td,
+table tr th {
+  padding: 10px;
+}
+
+#account {
+  font-size: 20px;
+  font-weight: 600;
+  background-color: #0000ff;
+  border: 3px solid white;
+}
+#logout-card > .button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+#logout-card > .button > input{
+  width: 50%;
+}
+
+#logout-card > .button > input:hover{
+  background-color: #0000ff;
+  cursor: pointer;
 }

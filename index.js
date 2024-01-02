@@ -48,7 +48,13 @@ $(document).ready(function () {
     $("#login-card").removeClass("show");
     $("#login-card").addClass("hide");
   });
-  $("#frame").click(function () {
+  $("#account").click(function () {
+    $("#frame").removeClass("hide");
+    $("#frame").addClass("show");
+    $("#logout-card").toggleClass("hide");
+    $("#logout-card").toggleClass("show");
+  });
+  $("#frame, #logout-no").click(function () {
     $("#frame").addClass("hide");
     $("#frame").removeClass("show");
     if ($("#login-card").hasClass("show")) {
@@ -59,18 +65,20 @@ $(document).ready(function () {
       $("#signup-card").toggleClass("hide");
       $("#signup-card").toggleClass("show");
     }
+    if($("#account").hasClass("show")) {
+      $("#logout-card").toggleClass("hide");
+      $("#logout-card").toggleClass("show");
+    };
   });
 
   $("#search").click(function (e) {
     e.preventDefault();
-    let service = $("#services").val() == "" ? "" : "s=" + $("#services").val();
-    let from = $("#from").val() == "" ? "" : service == "" ? "from=" +  $("#from").val() : "&from=" + $("#from").val();
-    let to = $("#to").val() == "" ? "" : from == "" ? "to=" + $("#to").val() : "&to=" + $("#to").val();
-    let date =
-      $("#departure-date").val() == "" ? "" : to == "" ? "d=" + $("#departure-date").val() : "&d=" + $("#departure-date").val();
-    let time = $("#time").val() == "" ? "" : date == "" ? "t=" + $("#time").val() : "&t=" + $("#time").val();
+    let service =
+      $("#services").val() == "" ? "s=" : "s=" + $("#services").val();
+    let from = $("#from").val() == "" ? "&from=" : "&from=" + $("#from").val();
+    let to = $("#to").val() == "" ? "&to=" : "&to=" + $("#to").val();
 
-    window.location.href = "index.php?" + service + from + to + date + time;
+    window.location.href = "index.php?" + service + from + to ;
 
     //   $.ajax({
     //     type: "POST",

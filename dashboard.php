@@ -15,6 +15,75 @@ if (!isset($_SESSION["u_id"])) {
     if (mysqli_num_rows($resultGetUser) > 0) {
         $user = mysqli_fetch_assoc($resultGetUser);
     }
+
+
+    $getKeberangkatan = "";
+
+    if (isset($_GET['s']) || isset($_GET['from']) || isset($_GET['to'])) {
+        $service = $_GET["s"] == "" ? "" : "t.t_type='" . $_GET["s"] . "'";
+        $from = $_GET["from"] == "" ? "" : ($service == "" ? "k.from_s='" . $_GET["from"] . "'" : " AND k.from_s='" . $_GET["from"] . "'");
+        $to = $_GET["to"] == "" ? "" : ($from == "" ? "k.to_S='" . $_GET["to"] . "'" : " AND k.to_S='" . $_GET["to"] . "'");
+
+        $sql = $service . $from . $to;
+        if ($service || $from || $to) {
+            $getKeberangkatan = "SELECT * FROM tbl_keberangkatan as k, tbl_train as t WHERE k.t_id=t.t_id AND " . $sql;
+            $resultKeberangkatan = mysqli_query($connect, $getKeberangkatan);
+
+            if ($resultKeberangkatan) {
+            }
+        }
+    }
+
+
+    if (isset($_POST["login-submit"])) {
+        $login_name = $_POST["login-name"];
+        $login_pass = $_POST["login-pass"];
+
+        $getUser = "SELECT * FROM tbl_user WHERE u_name='$login_name' AND u_pass='$login_pass' ORDER BY u_id ASC LIMIT 1";
+        $resultGetUser = mysqli_query($connect, $getUser);
+
+        if (mysqli_num_rows($resultGetUser) > 0) {
+            $user_login = mysqli_fetch_assoc($resultGetUser);
+            $_SESSION["u_id"] = $user_login["u_id"];
+            header("location: dashboard.php");
+            exit();
+        } else {
+            $loginError = "<p align='center'>User Not Found!</p>";
+        }
+    }
+
+    if (isset($_POST["signup-submit"])) {
+        $signup_name = $_POST["signup-name"];
+        $signup_pass = $_POST["signup-pass"];
+        $signup_confirm_pass = $_POST["confirm-signup-pass"];
+
+        if ($signup_pass != $signup_confirm_pass) {
+            $signupError = "<p align='center'>Password does not match</p>";
+        } else {
+            $insertUser = "INSERT INTO tbl_user(u_name, u_pass, u_register_date) VALUES ('$signup_name', '$signup_pass', NOW())";
+            $resultInsertUser = mysqli_query($connect, $insertUser);
+
+            if ($resultInsertUser) {
+                $getUser1 = "SELECT * FROM tbl_user WHERE u_name='$signup_name' AND u_pass='$signup_pass' ORDER BY u_id DESC LIMIT 1";
+                $resultGetUser1 = mysqli_query($connect, $getUser1);
+
+                if (mysqli_num_rows($resultGetUser1) > 0) {
+                    $user_signup = mysqli_fetch_assoc($resultGetUser1);
+                    $_SESSION["u_id"] = $user_signup["u_id"];
+                    header("location: dashboard.php");
+                    exit();
+                } else {
+                    $signupError = "<p align='center'>User Not Found!</p>";
+                }
+            }
+        }
+    }
+
+    $getTrain = "SELECT t_type FROM tbl_train GROUP BY t_type;";
+    $getStation = "SELECT * FROM tbl_station ORDER BY s_name ASC;";
+    $resultGetTrain = mysqli_query($connect, $getTrain);
+    $resultGetStation = mysqli_query($connect, $getStation);
+    $resultGetStation1 = mysqli_query($connect, $getStation);
 }
 ?>
 
@@ -40,8 +109,9 @@ if (!isset($_SESSION["u_id"])) {
             </ul>
         </nav>
         <div id="nav-button">
-            <button id="login">Login</button>
-            <button id="signup">Get Started</button>
+            <button type="button" id="account">
+                <?= $user["u_name"] ?>
+            </button>
         </div>
     </header>
     <main>
@@ -73,22 +143,136 @@ if (!isset($_SESSION["u_id"])) {
             </div>
             <button type="button" id="right"><i class="fi fi-sr-angle-right"></i></button>
         </div>
-        <!-- <form action="" method="post" id="service"></form> -->
+        <div id="service">
+            <h2>Booking</h2>
+            <form action="" method="POST">
+                <div class="container">
+                    <div class="form-control">
+                        <label for="services">Services</label>
+                        <select name="services" id="services" required>
+                            <option value="" selected>All Services</option>
+                            <?php if (mysqli_num_rows($resultGetTrain) > 0) { ?>
+                                <?php while ($train = mysqli_fetch_assoc($resultGetTrain)) { ?>
+                                    <option value="<?= $train['t_type'] ?>">
+                                        <?= $train['t_type'] ?>
+                                    </option>
+                                <?php } ?>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="container">
+                        <div class="form-control">
+                            <label for="from">From</label>
+                            <select name="from" id="from" required>
+                                <option value=""> From</option>
+                                <?php if (mysqli_num_rows($resultGetStation) > 0) { ?>
+                                    <?php while ($station = mysqli_fetch_assoc($resultGetStation)) { ?>
+                                        <option value="<?= $station['s_id'] ?>">
+                                            <?= $station['s_name'] ?>
+                                        </option>
+                                    <?php } ?>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label for="to">To</label>
+                            <select name="to" id="to" required>
+                                <option value=""> To</option>
+                                <?php if (mysqli_num_rows($resultGetStation1) > 0) { ?>
+                                    <?php while ($station1 = mysqli_fetch_assoc($resultGetStation1)) { ?>
+                                        <option value="<?= $station1['s_id'] ?>">
+                                            <?= $station1['s_name'] ?>
+                                        </option>
+                                    <?php } ?>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <!-- <div class="container">
+                        <div class="form-control">
+                            <label for="departure-date">Departure Date</label>
+                            <input type="date" name="departure-date" id="departure-date" required>
+                        </div>
+                        <div class="form-control">
+                            <label for="time">Time</label>
+                            <input type="time" name="time" id="time" required>
+                        </div>
+                    </div> -->
+                    <div class="form-control">
+                        <button type="submit" id="search">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <?php if ($getKeberangkatan != "") { ?>
+            <div class="table">
+                <table border="2">
+                    <tr>
+                        <th>No</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Service</th>
+                        <th>From Date</th>
+                        <th>to Date</th>
+                        <th>Time</th>
+                    </tr>
+                    <?php if (mysqli_num_rows($resultKeberangkatan)) { ?>
+                        <?php $i = 0 ?>
+                        <?php while ($row = mysqli_fetch_assoc($resultKeberangkatan)) { ?>
+                            <tr>
+                                <td>
+                                    <?= ++$i ?>
+                                </td>
+                                <td>
+                                    <?= $row["from_s"] ?>
+                                </td>
+                                <td>
+                                    <?= $row["to_S"] ?>
+                                </td>
+                                <td>
+                                    <?= $row["t_type"] ?>
+                                </td>
+                                <td>
+                                    <?= $row["from_date"] ?>
+                                </td>
+                                <td>
+                                    <?= $row["to_date"] ?>
+                                </td>
+                                <td>
+                                    <?= $row["from_time"] ?>
+                                    <?= $row["to_time"] ?>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                </table>
+            </div>
+        <?php } ?>
     </main>
     <div id="frame" class="hide"></div>
-    <!-- <form action="" method="post">
-        <input type="submit" value="back" name="submit">
-        <?php
-        if (isset($_POST["submit"])) {
-            session_unset();
-            session_destroy();
-            header("location: index.php");
-            exit();
-        }
-        ?>
-    </form> -->
+    <form method="POST" id="logout-card" class="hide">
+        <div class="form-control">
+            <h3 align="center">Do You Want to Quit?</h3>
+        </div>
+        <div class="form-control button">
+            <input type="submit" value="No" name="logout-no" id="logout-no">
+            <input type="submit" value="Yes" name="logout-yes" id="logout-yes">
+        </div>
+    </form>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="index.js"></script>
 </body>
 
 </html>
+
+<?php
+if (isset($_POST["logout-yes"])) {
+    session_unset();
+    session_destroy();
+    header("location: /index.php");
+    exit();
+}
+?>
